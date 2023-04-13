@@ -159,6 +159,7 @@ export const getUser = async ( req, res ) => {
 }
 
 export const follow = async ( req, res ) => {
+    console.log('xd')
     try {
         const user = await User.findById(req.params.id)
         const follower = await User.findById(req.userId)
