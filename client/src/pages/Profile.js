@@ -13,7 +13,7 @@ import EditProfile from '../components/EditProfile';
 
 const Profile = () => {
 
-    const {getTweets, posts} = usePost()
+    const {getTweets} = usePost()
     const {getUser, followUser} = useUser()
     const userViewer = useAuth().state.user
 
@@ -23,11 +23,13 @@ const Profile = () => {
     const [user, setUser] = useState()
     const [isOpenEdit, setIsOpenEdit] = useState(false)
     const [isFollowing, setIsFollowing] =useState(false)
+    const [posts, setPosts] = useState([])
 
     const callUser = async(userId)=>{
         const data = await getUser(userId)   
         setUser(data)
-        await getTweets(userId)
+        const tweets = await getTweets(userId)
+        setPosts(tweets)
     }
     useEffect(()=>{  
         callUser(params.id)

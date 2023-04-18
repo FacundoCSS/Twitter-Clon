@@ -13,7 +13,7 @@ import {AiOutlineLoading3Quarters, AiOutlineHeart, AiOutlineRetweet, AiFillHeart
 import {FiShare} from 'react-icons/fi'
 import {BsPencil} from 'react-icons/bs'
 
-const CompTweet = ({post, userComment}) => {
+const CompTweet = ({post, userComment, postID}) => {
 
     const navigate = useNavigate()
 
@@ -24,6 +24,7 @@ const CompTweet = ({post, userComment}) => {
     const [user, setUser] = useState()
     const [cited, setCited] = useState()
     const [userCited, setUserCited] = useState()
+    const [postData, setPostData] = useState(post)
 
     const [isOpenTweeting, setIsOpenTweeting] = useState(false)
     const [isOpenRetweet, setIsOpenRetweet] = useState(false)
@@ -33,24 +34,34 @@ const CompTweet = ({post, userComment}) => {
 
     const [likes, setLikes] = useState(0)
 
+    const callData = async(id)=>{
+        const tweet = await getTweet(postID)
+        setPostData(tweet.data)
+        callUser(tweet.data.created_by)
+    }
+
 
     const callUser = async(createdBy)=>{
         const data = await getUser(createdBy)
         setUser(data)
-        if(post?.cited_id){
-            const tweet = await getTweet(post.cited_id)
+        if (postData?.cited_id && !postID) {
+            const tweet = await getTweet(postData.cited_id)
             setCited(tweet.data)
             const userData  = await getUser(tweet.data.created_by)
-            console.log(userData)
             setUserCited(userData)
         }
     }
 
     useEffect(()=>{  
-        callUser(post.created_by)
-        setIsLiked(post?.likes.includes(userViewer?._id))
-        setLikes(post.likes ? post.likes.length : 0)
-        setIsRetweeted(post?.retweets.includes(userViewer?._id))
+        if (postID){
+            callData(postID)
+        } else {
+            callUser(postData.created_by)
+            setIsLiked(postData?.likes.includes(userViewer?._id))
+            setLikes(postData.likes ? postData.likes.length : 0)
+            setIsRetweeted(postData?.retweets.includes(userViewer?._id))
+        }
+        
     },[])
 
 
@@ -110,14 +121,14 @@ const CompTweet = ({post, userComment}) => {
                                                 {user?.user ? `@${user.user}`: `@${user.username}` }
                                         </div>
                                         <div className="text-[15px] pl-[5px] text-neutral-600 container ">
-                                            {format(new Date(post.created_at), 'DD MMM, YYYY')}
+                                            {format(new Date(postData.created_at), 'DD MMM, YYYY')}
                                         </div>
                                     </div>
-                                    <p>{post.content}</p>
+                                    <p>{postData.content}</p>
                                 </div>
                             </div>
                         </div>
-                        <CreateTweetForm userComment={user} tweet={post} userRetweet={user}/>
+                        <CreateTweetForm userComment={user} tweet={postData} userRetweet={user}/>
                     </div>
                 </div>
             }
@@ -134,13 +145,13 @@ const CompTweet = ({post, userComment}) => {
                             X
                         </div>
                         
-                        <CreateTweetForm userRetweet={user} retweet={post}/>
+                        <CreateTweetForm userRetweet={user} retweet={postData}/>
                     </div>
                 </div>
             }
             <Link
              className='flex text-white border-b border-neutral-800 container px-[16px]'
-            to={`/tweet/${post._id}`}
+            to={`/tweet/${postData._id}`}
             >
                 <div className='h-full flex pt-[12px] justify-center w-[70px] mr-[12px]'>
                 {user?.image 
@@ -172,11 +183,11 @@ const CompTweet = ({post, userComment}) => {
                                     {user?.user ? `@${user.user}`: `@${user.username}` }
                             </div>
                             <div className="text-[15px] pl-[5px] text-neutral-600 container ">
-                                {format(new Date(post.created_at), 'DD MMM, YYYY')}
+                                {format(new Date(postData.created_at), 'DD MMM, YYYY')}
                             </div>
                         </div>
-                        <p>{post.content}</p>
-                        {post.image && <img src={post.image.url} className='object-contain max-w-[466px] max-h-[580px] rounded-xl' alt={post.title}/> }
+                        <p>{postData.content}</p>
+                        {postData.image && <img src={postData.image.url} className='object-contain max-w-[466px] max-h-[580px] rounded-xl' alt={postData.title}/> }
                         
                     </div>
                     {
@@ -221,7 +232,7 @@ const CompTweet = ({post, userComment}) => {
                         }}
                         className='w-[40px] h-[40px] hover:cursor-pointer hover:bg-[#0284c730] hover:text-[#0284c7] rounded-full flex items-center justify-center'>
                             <FaRegComment className='w-[18px] h-[18px] mr-[5px] hover:cursor-pointer'/>
-                            {post.comments ? post.comments.length : 0}
+                            {postData.comments ? postData.comments.length : 0}
                         </div>
                         {
                             isOpenRetweet
@@ -236,7 +247,7 @@ const CompTweet = ({post, userComment}) => {
                                     className='container flex items-center justify-center h-[44px] hover:bg-neutral-800/30 cursor-pointer rounded-b rounded-2xl'
                                     onClick={async (e)=>{
                                         e.preventDefault()
-                                        await retweet(post._id)
+                                        await retweet(postData._id)
                                         setIsOpenRetweet(false)
                                     }}
                                     >
@@ -269,7 +280,7 @@ const CompTweet = ({post, userComment}) => {
                         }}
                         >
                             <AiOutlineRetweet className='w-[18px] h-[18px] mr-[5px] hover:cursor-pointer'/>
-                            {post.retweets || post.cited_retweets ? post.cited_retweets.length + post.retweets.length : 0}
+                            {postData.retweets || postData.cited_retweets ? postData.cited_retweets.length + postData.retweets.length : 0}
                         </div>
                         {
                             Isliked 
@@ -278,7 +289,7 @@ const CompTweet = ({post, userComment}) => {
                             onClick={async (e)=>{
                                 e.preventDefault()
                                 setIsLiked(false)
-                                await like(post._id)
+                                await like(postData._id)
                                 setLikes(likes - 1)
                             }}
                             >
@@ -290,7 +301,7 @@ const CompTweet = ({post, userComment}) => {
                             onClick={async (e)=>{
                                 e.preventDefault()
                                 setIsLiked(true)
-                                await like(post._id)
+                                await like(postData._id)
                                 setLikes(likes + 1)
                             }}
                             >

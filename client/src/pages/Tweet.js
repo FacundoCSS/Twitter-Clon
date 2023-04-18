@@ -53,11 +53,6 @@ const Tweet = () => {
         await setLikes(post.likes ? post.likes.length : 0)
     }
 
-    const callPosts = async(id)=>{
-        const tweet = await getTweet(id)
-        return tweet
-    }
-
     useEffect(()=>{  
         callData()
     },[])
@@ -143,8 +138,6 @@ const Tweet = () => {
                         post?.retweets
                             ? post.retweets.map (id => { 
 
-                                getTweet
-
                                 return  <div key={id} className="container m-auto">
                                             <UserCard id={id}/>
                                         </div>
@@ -183,7 +176,7 @@ const Tweet = () => {
                             ? post.cited_retweets.map (post => { 
 
                                 return  <div key={post._id} className="container m-auto">
-                                            <CompTweet post={post}/>
+                                            <CompTweet postID={post}/>
                                         </div>
                             })
                             : <div>No hay retweets</div>

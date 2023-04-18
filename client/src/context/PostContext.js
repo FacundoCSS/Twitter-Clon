@@ -19,7 +19,7 @@ const PostProvider = ({children})=>{
 
     const getTweets = async (id)=>{
         const res = await getTweetsRequest(id)
-        setPosts(res.data.tweets)
+        return res.data.tweets
     }
 
     const createTweet = async (data)=>{
