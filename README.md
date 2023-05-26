@@ -33,4 +33,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-If you have any questions or inquiries about the project, feel free to contact us at [facundocordoba500@email.com].
+If you have any questions or inquiries about the project, feel free to contact us at facundocordoba500@email.com.
